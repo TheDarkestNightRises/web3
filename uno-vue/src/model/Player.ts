@@ -11,17 +11,10 @@ class Player {
         }
     }
     
-    public playCard(index: number, topCard: Card): Card | undefined {
+    public playCard(index: number): Card | undefined {
         if (this.hand[index]) {
             const card = this.hand[index];
-            const isMatch =
-                card.color === topCard.color ||
-                card.value === topCard.value ||
-                card.type === CardType.Wild;
-
-            if (isMatch) {
-                return this.hand.splice(index, 1)[0]; 
-            }
+            return this.hand.splice(index, 1)[0]; 
         }
         return undefined;
     }
@@ -32,5 +25,9 @@ class Player {
 
     public resetUno() {
         this.unoCalled = false;
+    }
+
+    public isEmpty(): boolean {
+        return this.hand.length === 0;
     }
 }
