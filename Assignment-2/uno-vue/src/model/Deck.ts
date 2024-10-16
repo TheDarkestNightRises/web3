@@ -70,5 +70,4 @@ class UnoDeck implements Deck {
     public getTopDiscard(): Card {
         return this.discardPile[this.discardPile.length - 1];
     }
-
 }

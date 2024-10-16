@@ -1,33 +1,48 @@
-class Player {
-    public hand: Card[] = [];
-    public unoCalled: boolean = false;
+interface Player {
+    id: number;
+    hand: Card[];
+    hasUno: boolean;
+    playCard(card: Card): void;
+}
 
-    constructor(public name: string) {}
+class Bot implements Player {
+    id: number;
+    hand: Card[] = [];
+    hasUno = false;
 
-    public draw(deck: UnoDeck) {
-        const card = deck.drawCard();
-        if (card) {
-            this.hand.push(card);
+    constructor(id: number) {
+        this.id = id;
+    }
+
+    playCard(card: Card) {
+
+    }
+}
+
+
+class HumanPlayer implements Player {
+    id: number;
+    hand: Card[] = [];
+    hasUno = false;
+
+    constructor(id: number) {
+        this.id = id;
+    }
+
+    playCard(card: Card): void {
+        const cardIndex = this.hand.findIndex(c => c === card);
+        if (cardIndex !== -1) {
+            this.hand.splice(cardIndex, 1); 
+        } else {
+            throw new Error("Card not in hand.");
         }
     }
-    
-    public playCard(index: number): Card | undefined {
-        if (this.hand[index]) {
-            const card = this.hand[index];
-            return this.hand.splice(index, 1)[0]; 
-        }
-        return undefined;
+
+    checkUno(): boolean {
+        return this.hand.length === 1;
     }
 
-    public callUno() {
-        this.unoCalled = true;
-    }
-
-    public resetUno() {
-        this.unoCalled = false;
-    }
-
-    public isEmpty(): boolean {
-        return this.hand.length === 0;
+    resetHand(): void {
+        this.hand = [];
     }
 }
