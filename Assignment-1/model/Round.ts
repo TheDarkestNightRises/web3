@@ -28,7 +28,7 @@ class Round {
     }
 
     public playTurn(player: Player, cardIndex: number) {
-        const cardPlayed = player.playCard(cardIndex, this.currentCard!);
+        const cardPlayed = player.playCard(cardIndex);
         if (cardPlayed) {
             this.currentCard = cardPlayed;
             this.deck.discard(cardPlayed); // Add played card to discard pile
@@ -71,9 +71,5 @@ class Round {
             console.log(`${nextPlayer.name} draws four cards.`);
             // Change color logic as above
         }
-    }
-
-    public checkForWin(): Player | undefined {
-        return this.players.find(player => player.isEmpty());
     }
 }
