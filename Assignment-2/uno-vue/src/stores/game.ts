@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia';
 
-// Define types for cards, players, and state
 type Card = {
   color: 'red' | 'green' | 'blue' | 'yellow' | 'wild';
   value: number | 'skip' | 'reverse' | '+2' | 'wild' | '+4';
@@ -38,7 +37,7 @@ export const useGameStore = defineStore('game', {
       this.shuffleDeck();
       this.players = this.createPlayers(numBots);
       this.dealCards();
-      this.setInitialCard(); // Call the method to set the initial card
+      this.setInitialCard(); 
       this.currentPlayer = 0;
       this.direction = 1;
       this.gameOver = false;
@@ -47,12 +46,10 @@ export const useGameStore = defineStore('game', {
     setInitialCard() {
       let initialCard;
 
-      // Draw until a non-wild card is found
       do {
-        initialCard = this.deck.pop(); // Get the top card from the deck
+        initialCard = this.deck.pop(); 
       } while (initialCard && (initialCard.color === 'wild' || initialCard.value === 'wild'));
 
-      // Place it on the discard pile if it's valid
       if (initialCard) {
         this.discardPile.push(initialCard);
       }
@@ -62,29 +59,75 @@ export const useGameStore = defineStore('game', {
       const colors: Array<'red' | 'green' | 'blue' | 'yellow'> = ['red', 'green', 'blue', 'yellow'];
       const deck: Card[] = [];
 
-      // Create number cards
       colors.forEach((color) => {
         for (let i = 0; i <= 9; i++) {
           deck.push({ color, value: i });
           if (i !== 0) {
-            deck.push({ color, value: i }); // Two of each number except 0
+            deck.push({ color, value: i }); 
           }
         }
 
-        // Create action cards
         ['skip', 'reverse', '+2'].forEach((action) => {
           deck.push({ color, value: action as 'skip' | 'reverse' | '+2' });
           deck.push({ color, value: action as 'skip' | 'reverse' | '+2' });
         });
       });
 
-      // Create wild cards
       for (let i = 0; i < 4; i++) {
         deck.push({ color: 'wild', value: 'wild' });
         deck.push({ color: 'wild', value: '+4' });
       }
 
       return deck;
+    },
+
+    isCardValid(card: Card): boolean {
+      const topCard = this.discardPile[this.discardPile.length - 1];
+      return (
+        !topCard ||
+        card.color === topCard.color ||
+        card.value === topCard.value ||
+        card.color === 'wild'
+      );
+    },
+
+    playCard(playerIndex: number, card: Card) {
+      if (this.isCardValid(card)) {
+        const player = this.players[playerIndex];
+        const cardIndex = player.hand.findIndex((c) => c === card);
+
+        if (cardIndex !== -1) {
+          player.hand.splice(cardIndex, 1); 
+          this.discardPile.push(card); 
+
+          this.changeTurn();
+        }
+      }
+    },
+
+    changeTurn() {
+      this.currentPlayer += this.direction;
+      if (this.currentPlayer >= this.players.length) {
+        this.currentPlayer = 0;
+      } else if (this.currentPlayer < 0) {
+        this.currentPlayer = this.players.length - 1;
+      }
+
+      if (this.players[this.currentPlayer].isBot) {
+        this.botPlayCard();
+      }
+    },
+
+    botPlayCard() {
+      const bot = this.players[this.currentPlayer];
+      const validCards = bot.hand.filter(this.isCardValid);
+
+      if (validCards.length > 0) {
+        const randomCard = validCards[Math.floor(Math.random() * validCards.length)];
+        this.playCard(this.currentPlayer, randomCard);
+      } else {
+        this.changeTurn();
+      }
     },
 
     shuffleDeck() {
@@ -110,7 +153,6 @@ export const useGameStore = defineStore('game', {
         }
       });
     },
-    
-    // Additional methods for game play can be implemented here
+
   },
 });
