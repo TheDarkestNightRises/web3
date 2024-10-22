@@ -3,7 +3,7 @@
       <CurrentCard />
   
       <div class="player-bottom">
-        <PlayerHand :playerIndex="0" />
+        <PlayerHand :playerIndex="0"/>
       </div>
   
       <div class="player-top">
@@ -11,11 +11,11 @@
       </div>
   
       <div class="player-left">
-        <BotHand :playerIndex="2" vertical />
+        <BotHand :playerIndex="2"/>
       </div>
   
       <div class="player-right">
-        <BotHand :playerIndex="3" vertical />
+        <BotHand :playerIndex="3"/>
       </div>
   
       <Deck />
@@ -23,10 +23,10 @@
   </template>
   
   <script>
-  import PlayerHand from './PlayerHand.vue'; // Import PlayerHand component
-  import BotHand from './BotHand.vue'; // Import BotHand component
-  import CurrentCard from './CurrentCard.vue'; // Import CurrentCard component
-  import Deck from './Deck.vue'; // Import Deck component
+  import PlayerHand from './PlayerHand.vue'; 
+  import BotHand from './BotHand.vue'; 
+  import CurrentCard from './CurrentCard.vue'; 
+  import Deck from './Deck.vue'; 
   
   export default {
     components: {

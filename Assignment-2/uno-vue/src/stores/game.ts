@@ -38,7 +38,7 @@ export const useGameStore = defineStore('game', {
       this.shuffleDeck();
       this.players = this.createPlayers(numBots);
       this.dealCards();
-      this.setInitialCard(); // Call the new method to set the initial card
+      this.setInitialCard(); // Call the method to set the initial card
       this.currentPlayer = 0;
       this.direction = 1;
       this.gameOver = false;
@@ -62,20 +62,23 @@ export const useGameStore = defineStore('game', {
       const colors: Array<'red' | 'green' | 'blue' | 'yellow'> = ['red', 'green', 'blue', 'yellow'];
       const deck: Card[] = [];
 
+      // Create number cards
       colors.forEach((color) => {
         for (let i = 0; i <= 9; i++) {
           deck.push({ color, value: i });
           if (i !== 0) {
-            deck.push({ color, value: i });
+            deck.push({ color, value: i }); // Two of each number except 0
           }
         }
 
+        // Create action cards
         ['skip', 'reverse', '+2'].forEach((action) => {
           deck.push({ color, value: action as 'skip' | 'reverse' | '+2' });
           deck.push({ color, value: action as 'skip' | 'reverse' | '+2' });
         });
       });
 
+      // Create wild cards
       for (let i = 0; i < 4; i++) {
         deck.push({ color: 'wild', value: 'wild' });
         deck.push({ color: 'wild', value: '+4' });
@@ -107,28 +110,7 @@ export const useGameStore = defineStore('game', {
         }
       });
     },
-
-    // Uncomment and implement these methods as needed
-    // playCard(playerIndex: number, card: Card) {
-    //   this.discardPile.push(card);
-    //   this.players[playerIndex].hand = this.players[playerIndex].hand.filter(c => c !== card);
-    // },
-
-    // drawCard(playerIndex: number) {
-    //   if (this.deck.length === 0) {
-    //     this.reshuffleDiscardPile();
-    //   }
-    //   const card = this.deck.pop();
-    //   if (card) {
-    //     this.players[playerIndex].hand.push(card);
-    //   }
-    // },
-
-    // reshuffleDiscardPile() {
-    //   const lastCard = this.discardPile.pop(); 
-    //   this.deck = this.discardPile;
-    //   this.shuffleDeck();
-    //   this.discardPile = lastCard ? [lastCard] : [];
-    // },
+    
+    // Additional methods for game play can be implemented here
   },
 });
