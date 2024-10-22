@@ -1,5 +1,5 @@
 <template>
-    <div class="player-hand">
+    <div class="player-hand" v-if="showHand">
       <div 
         v-for="(card, index) in playerHand" 
         :key="index" 
@@ -17,18 +17,31 @@
   
   export default {
     name: 'PlayerHand',
-    setup() {
+    props: {
+      playerIndex: {
+        type: Number,
+        required: true,
+      },
+      showHand: {
+        type: Boolean,
+        default: true,
+      },
+    },
+    setup(props) {
       const gameStore = useGameStore();
   
-      const playerHand = computed(() => gameStore.players[gameStore.currentPlayer].hand);
+      const playerHand = computed(() => {
+        // Check for valid players
+        const players = gameStore.players;
+        return players && players[props.playerIndex] ? players[props.playerIndex].hand : [];
+      });
   
       const getCardImage = (card) => {
-        return `/images/cards/${card.color}_${card.value}.png`;  
+        return card ? `/images/cards/${card.color}_${card.value}.png` : '';
       };
-
-      // Play a card
+  
       const playCard = (card) => {
-        gameStore.playCard(gameStore.currentPlayer, card);
+        gameStore.playCard(props.playerIndex, card);
       };
   
       return {
@@ -36,7 +49,7 @@
         playCard,
         getCardImage, 
       };
-    }
+    },
   };
   </script>
   
@@ -45,23 +58,17 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 20px;
-    background-color: #f5f5f5;
-    height: 150px;
-    position: absolute;
-    bottom: 0;
-    width: 100%;
+    padding: 10px;
+    height: 100px; /* Adjust height for visual spacing */
   }
-  
   .card {
-    width: 80px;
-    height: 120px;
+    width: 80px; /* Adjust the size as needed */
+    height: 120px; /* Adjust the size as needed */
     background-size: cover;
     background-position: center;
     margin: 0 5px;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
   }
-  
   .card:hover {
     transform: translateY(-20px);
     box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.3);

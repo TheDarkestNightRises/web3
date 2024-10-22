@@ -29,16 +29,16 @@
   
   <style scoped>
   .current-card {
-    width: 120px; /* Adjust the size as needed */
-    height: 180px; /* Adjust the size as needed */
+    width: 120px; 
+    height: 180px; 
     background-size: cover;
     background-position: center;
     margin: 0 auto;
     position: absolute;
     top: 50%;
-    left: 50%; /* Center horizontally */
-    transform: translate(-50%, -50%); /* Center vertically */
-    z-index: 10; /* Ensure it appears above other elements */
+    left: 50%; 
+    transform: translate(-50%, -50%); 
+    z-index: 10; 
   }
   </style>
   

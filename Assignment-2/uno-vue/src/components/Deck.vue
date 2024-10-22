@@ -19,12 +19,10 @@ export default {
   setup() {
     const gameStore = useGameStore();
 
-    // Get the stacked cards
     const stackedCards = computed(() => {
       return gameStore.deck.length > 0 ? gameStore.deck : []; 
     });
 
-    // Function to handle drawing a card
     const drawCard = () => {
       if (stackedCards.value.length > 0) {
         gameStore.drawCard(gameStore.currentPlayer); 
