@@ -4,7 +4,7 @@
         v-for="(card, index) in playerHand" 
         :key="index" 
         class="card" 
-        @click="playCard(card)"
+        @click="playCard(card)" 
         :style="{ backgroundImage: `url(${getCardImage(card)})` }"
       >
       </div>
@@ -31,7 +31,6 @@
       const gameStore = useGameStore();
   
       const playerHand = computed(() => {
-        // Check for valid players
         const players = gameStore.players;
         return players && players[props.playerIndex] ? players[props.playerIndex].hand : [];
       });

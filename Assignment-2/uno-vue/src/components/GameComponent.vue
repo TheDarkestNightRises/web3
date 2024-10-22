@@ -2,24 +2,20 @@
     <div class="game-container">
       <CurrentCard />
   
-      <!-- Placeholder for Player 1 (bottom) -->
       <div class="player-bottom">
         <PlayerHand :playerIndex="0" />
       </div>
   
-      <!-- Placeholder for Player 2 (top) -->
       <div class="player-top">
-        <PlayerHand :playerIndex="1" />
+        <BotHand :playerIndex="1" />
       </div>
   
-      <!-- Placeholder for Player 3 (left) -->
       <div class="player-left">
-        <PlayerHand :playerIndex="2" vertical />
+        <BotHand :playerIndex="2" vertical />
       </div>
   
-      <!-- Placeholder for Player 4 (right) -->
       <div class="player-right">
-        <PlayerHand :playerIndex="3" vertical />
+        <BotHand :playerIndex="3" vertical />
       </div>
   
       <Deck />
@@ -28,12 +24,14 @@
   
   <script>
   import PlayerHand from './PlayerHand.vue'; // Import PlayerHand component
+  import BotHand from './BotHand.vue'; // Import BotHand component
   import CurrentCard from './CurrentCard.vue'; // Import CurrentCard component
   import Deck from './Deck.vue'; // Import Deck component
   
   export default {
     components: {
       PlayerHand,
+      BotHand,
       CurrentCard,
       Deck,
     },
