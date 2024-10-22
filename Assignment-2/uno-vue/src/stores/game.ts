@@ -15,7 +15,7 @@ type Player = {
 type GameState = {
   deck: Card[];
   players: Player[];
-  currentPlayer: number;  
+  currentPlayer: number;
   direction: 1 | -1;
   discardPile: Card[];
   gameOver: boolean;
@@ -38,10 +38,24 @@ export const useGameStore = defineStore('game', {
       this.shuffleDeck();
       this.players = this.createPlayers(numBots);
       this.dealCards();
-      this.discardPile = []; 
-      this.currentPlayer = 0; 
+      this.setInitialCard(); // Call the new method to set the initial card
+      this.currentPlayer = 0;
       this.direction = 1;
       this.gameOver = false;
+    },
+
+    setInitialCard() {
+      let initialCard;
+
+      // Draw until a non-wild card is found
+      do {
+        initialCard = this.deck.pop(); // Get the top card from the deck
+      } while (initialCard && (initialCard.color === 'wild' || initialCard.value === 'wild'));
+
+      // Place it on the discard pile if it's valid
+      if (initialCard) {
+        this.discardPile.push(initialCard);
+      }
     },
 
     createDeck(): Card[] {
@@ -86,14 +100,15 @@ export const useGameStore = defineStore('game', {
     },
 
     dealCards() {
-      const numCards = 7; 
+      const numCards = 7;
       this.players.forEach((player) => {
         for (let i = 0; i < numCards; i++) {
-          player.hand.push(this.deck.pop()!); 
+          player.hand.push(this.deck.pop()!);
         }
       });
     },
 
+    // Uncomment and implement these methods as needed
     // playCard(playerIndex: number, card: Card) {
     //   this.discardPile.push(card);
     //   this.players[playerIndex].hand = this.players[playerIndex].hand.filter(c => c !== card);

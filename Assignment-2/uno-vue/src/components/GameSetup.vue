@@ -20,7 +20,7 @@
     setup() {
       const numBots = ref(1); 
       const gameStore = useGameStore(); 
-      const router = useRouter(); // Access the Vue Router instance
+      const router = useRouter(); 
   
       const startGame = () => {
         gameStore.initializeGame(numBots.value); 
