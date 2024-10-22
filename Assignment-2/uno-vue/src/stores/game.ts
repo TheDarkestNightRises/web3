@@ -31,54 +31,29 @@ export const useGameStore = defineStore('game', {
     gameOver: false,
     scores: {},
   }),
+
   actions: {
     initializeGame(numBots: number) {
       this.deck = this.createDeck();
       this.shuffleDeck();
       this.players = this.createPlayers(numBots);
       this.dealCards();
-      this.setInitialCard(); 
+      this.setInitialCard();
       this.currentPlayer = 0;
       this.direction = 1;
       this.gameOver = false;
     },
 
     setInitialCard() {
-      let initialCard;
+      let initialCard: Card | undefined;
 
       do {
-        initialCard = this.deck.pop(); 
+        initialCard = this.deck.pop();
       } while (initialCard && (initialCard.color === 'wild' || initialCard.value === 'wild'));
 
       if (initialCard) {
         this.discardPile.push(initialCard);
       }
-    },
-
-    createDeck(): Card[] {
-      const colors: Array<'red' | 'green' | 'blue' | 'yellow'> = ['red', 'green', 'blue', 'yellow'];
-      const deck: Card[] = [];
-
-      colors.forEach((color) => {
-        for (let i = 0; i <= 9; i++) {
-          deck.push({ color, value: i });
-          if (i !== 0) {
-            deck.push({ color, value: i }); 
-          }
-        }
-
-        ['skip', 'reverse', '+2'].forEach((action) => {
-          deck.push({ color, value: action as 'skip' | 'reverse' | '+2' });
-          deck.push({ color, value: action as 'skip' | 'reverse' | '+2' });
-        });
-      });
-
-      for (let i = 0; i < 4; i++) {
-        deck.push({ color: 'wild', value: 'wild' });
-        deck.push({ color: 'wild', value: '+4' });
-      }
-
-      return deck;
     },
 
     isCardValid(card: Card): boolean {
@@ -92,27 +67,55 @@ export const useGameStore = defineStore('game', {
     },
 
     playCard(playerIndex: number, card: Card) {
+      const player = this.players[playerIndex];
+
       if (this.isCardValid(card)) {
-        const player = this.players[playerIndex];
         const cardIndex = player.hand.findIndex((c) => c === card);
 
         if (cardIndex !== -1) {
-          player.hand.splice(cardIndex, 1); 
-          this.discardPile.push(card); 
+          player.hand.splice(cardIndex, 1);
+          this.discardPile.push(card);
 
           this.changeTurn();
         }
+      } else {
+        this.drawCardsUntilPlayable(playerIndex);
       }
+    },
+
+    drawCardsUntilPlayable(playerIndex: number) {
+      const player = this.players[playerIndex];
+      let drawnCard: Card | undefined;
+
+      while (true) {
+        if (this.deck.length === 0) {
+          console.log("No more cards to draw.");
+          break; // Exit if the deck is empty
+        }
+
+        drawnCard = this.deck.pop();
+        if (drawnCard) {
+          player.hand.push(drawnCard); // Add to player's hand
+
+          if (this.isCardValid(drawnCard)) {
+            this.playCard(playerIndex, drawnCard); // Play the drawn card immediately
+            return; // Exit the function after playing the card
+          }
+        }
+      }
+
+      this.changeTurn(); // Skip the turn if no playable card is drawn
     },
 
     changeTurn() {
       this.currentPlayer += this.direction;
       if (this.currentPlayer >= this.players.length) {
-        this.currentPlayer = 0;
+        this.currentPlayer = 0; // Loop back to the start
       } else if (this.currentPlayer < 0) {
-        this.currentPlayer = this.players.length - 1;
+        this.currentPlayer = this.players.length - 1; // Loop back to the end
       }
 
+      // If the current player is a bot, make the bot play a card
       if (this.players[this.currentPlayer].isBot) {
         this.botPlayCard();
       }
@@ -124,10 +127,40 @@ export const useGameStore = defineStore('game', {
 
       if (validCards.length > 0) {
         const randomCard = validCards[Math.floor(Math.random() * validCards.length)];
-        this.playCard(this.currentPlayer, randomCard);
+        this.playCard(this.currentPlayer, randomCard); // Play the card
       } else {
+        // If no valid cards, the bot will skip the turn
         this.changeTurn();
       }
+    },
+
+    createDeck(): Card[] {
+      const colors: Array<'red' | 'green' | 'blue' | 'yellow'> = ['red', 'green', 'blue', 'yellow'];
+      const deck: Card[] = [];
+
+      // Create number cards
+      colors.forEach((color) => {
+        for (let i = 0; i <= 9; i++) {
+          deck.push({ color, value: i });
+          if (i !== 0) {
+            deck.push({ color, value: i }); // Two of each number except 0
+          }
+        }
+
+        // Create action cards
+        ['skip', 'reverse', '+2'].forEach((action) => {
+          deck.push({ color, value: action as 'skip' | 'reverse' | '+2' });
+          deck.push({ color, value: action as 'skip' | 'reverse' | '+2' });
+        });
+      });
+
+      // Create wild cards
+      for (let i = 0; i < 4; i++) {
+        deck.push({ color: 'wild', value: 'wild' });
+        deck.push({ color: 'wild', value: '+4' });
+      }
+
+      return deck;
     },
 
     shuffleDeck() {
@@ -149,10 +182,12 @@ export const useGameStore = defineStore('game', {
       const numCards = 7;
       this.players.forEach((player) => {
         for (let i = 0; i < numCards; i++) {
-          player.hand.push(this.deck.pop()!);
+          const card = this.deck.pop();
+          if (card) {
+            player.hand.push(card);
+          }
         }
       });
     },
-
   },
 });
