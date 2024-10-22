@@ -1,22 +1,37 @@
 <template>
     <div>
       <h1>Uno Game Setup</h1>
+      <label for="numBots">Number of bots:</label>
+      <select v-model="numBots">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+      </select>
       <button @click="startGame">Start Game</button>
     </div>
   </template>
   
-  <script setup>
-  import { useRoundStore } from '@/stores/roundStore';
+  <script>
+  import { ref } from 'vue'; 
+  import { useGameStore } from '../stores/game'; 
+  import { useRouter } from 'vue-router';
   
-  const roundStore = useRoundStore();
+  export default {
+    setup() {
+      const numBots = ref(1); 
+      const gameStore = useGameStore(); 
+      const router = useRouter(); // Access the Vue Router instance
   
-  const startGame = () => {
-    roundStore.setPlayers([/* Initialize players here */]); // Add Human and Bot players
-    roundStore.startRound(); // Start the round
+      const startGame = () => {
+        gameStore.initializeGame(numBots.value); 
+        router.push({ name: 'GameComponent' }); 
+      };
+  
+      return {
+        numBots,
+        startGame 
+      };
+    }
   };
   </script>
-  
-  <style scoped>
-  /* Add styles here */
-  </style>
   
