@@ -75,8 +75,7 @@ export const useGameStore = defineStore('game', {
         if (cardIndex !== -1) {
           player.hand.splice(cardIndex, 1);
           this.discardPile.push(card);
-
-          this.handleSpecialCard(card); 
+          this.handleSpecialCard(card);
 
           if (player.hand.length === 0) {
             this.endGame(player.name);
@@ -84,6 +83,28 @@ export const useGameStore = defineStore('game', {
             this.changeTurn();
           }
         }
+      } else {
+        // If the card is not valid, draw a card
+        this.drawCardForPlayer(playerIndex);
+      }
+    },
+
+    drawCardForPlayer(playerIndex: number) {
+      const player = this.players[playerIndex];
+      const drawnCard = this.deck.pop();
+
+      if (drawnCard) {
+        player.hand.push(drawnCard);
+        console.log(`${player.name} drew a card: ${JSON.stringify(drawnCard)}`);
+
+        if (this.isCardValid(drawnCard)) {
+          this.playCard(playerIndex, drawnCard);
+        } else {
+          this.changeTurn();
+        }
+      } else {
+        console.log("No cards left to draw.");
+        this.changeTurn();
       }
     },
 
@@ -138,7 +159,7 @@ export const useGameStore = defineStore('game', {
     },
 
     changeColor(card: Card) {
-      //Change this for the player to chose a color
+      // Change this for the player to choose a color
       const colors: Array<'red' | 'green' | 'blue' | 'yellow'> = ['red', 'green', 'blue', 'yellow'];
       const randomColor = colors[Math.floor(Math.random() * colors.length)];
       card.color = randomColor;
@@ -176,7 +197,7 @@ export const useGameStore = defineStore('game', {
         const randomCard = validCards[Math.floor(Math.random() * validCards.length)];
         this.playCard(this.currentPlayer, randomCard);
       } else {
-        this.changeTurn();
+        this.drawCardForPlayer(this.currentPlayer);
       }
     },
 
