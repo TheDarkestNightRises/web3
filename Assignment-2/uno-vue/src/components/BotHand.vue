@@ -5,7 +5,7 @@
       v-for="(card, index) in botHand" 
       :key="index" 
       :card="card" 
-      :isFaceUp="false"
+      :isFaceUp="true"
     />
   </div>
 </template>
