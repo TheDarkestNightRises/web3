@@ -76,16 +76,79 @@ export const useGameStore = defineStore('game', {
           player.hand.splice(cardIndex, 1);
           this.discardPile.push(card);
 
-          this.changeTurn();
+          this.handleSpecialCard(card); 
+
+          if (player.hand.length === 0) {
+            this.endGame(player.name);
+          } else {
+            this.changeTurn();
+          }
         }
       }
+    },
+
+    handleSpecialCard(card: Card) {
+      switch (card.value) {
+        case 'skip':
+          this.skipNextPlayer();
+          break;
+        case 'reverse':
+          this.reverseDirection();
+          break;
+        case '+2':
+          this.drawCardsForNextPlayer(2);
+          break;
+        case '+4':
+          this.drawCardsForNextPlayer(4);
+          break;
+        case 'wild':
+          this.changeColor(card);
+          break;
+      }
+    },
+
+    skipNextPlayer() {
+      this.currentPlayer += this.direction;
+      if (this.currentPlayer >= this.players.length) {
+        this.currentPlayer = 0;
+      } else if (this.currentPlayer < 0) {
+        this.currentPlayer = this.players.length - 1;
+      }
+    },
+
+    reverseDirection() {
+      this.direction *= -1;
+    },
+
+    drawCardsForNextPlayer(count: number) {
+      this.currentPlayer += this.direction;
+      if (this.currentPlayer >= this.players.length) {
+        this.currentPlayer = 0;
+      } else if (this.currentPlayer < 0) {
+        this.currentPlayer = this.players.length - 1;
+      }
+      const nextPlayer = this.players[this.currentPlayer];
+
+      for (let i = 0; i < count; i++) {
+        const card = this.deck.pop();
+        if (card) {
+          nextPlayer.hand.push(card);
+        }
+      }
+    },
+
+    changeColor(card: Card) {
+      //Change this for the player to chose a color
+      const colors: Array<'red' | 'green' | 'blue' | 'yellow'> = ['red', 'green', 'blue', 'yellow'];
+      const randomColor = colors[Math.floor(Math.random() * colors.length)];
+      card.color = randomColor;
     },
 
     replenishDeck() {
       if (this.discardPile.length > 1) {
         const topCard = this.discardPile.pop();
-        this.deck = [...this.discardPile]; 
-        this.discardPile = [topCard!]; 
+        this.deck = [...this.discardPile];
+        this.discardPile = [topCard!];
         this.shuffleDeck();
       } else {
         console.log("No cards left in discard pile to replenish the deck.");
@@ -97,7 +160,7 @@ export const useGameStore = defineStore('game', {
       if (this.currentPlayer >= this.players.length) {
         this.currentPlayer = 0;
       } else if (this.currentPlayer < 0) {
-        this.currentPlayer = this.players.length - 1; 
+        this.currentPlayer = this.players.length - 1;
       }
 
       if (this.players[this.currentPlayer].isBot) {
@@ -111,7 +174,7 @@ export const useGameStore = defineStore('game', {
 
       if (validCards.length > 0) {
         const randomCard = validCards[Math.floor(Math.random() * validCards.length)];
-        this.playCard(this.currentPlayer, randomCard); 
+        this.playCard(this.currentPlayer, randomCard);
       } else {
         this.changeTurn();
       }
@@ -171,6 +234,11 @@ export const useGameStore = defineStore('game', {
           }
         }
       });
+    },
+
+    endGame(winnerName: string) {
+      console.log(`${winnerName} wins!`);
+      this.gameOver = true;
     },
   },
 });
