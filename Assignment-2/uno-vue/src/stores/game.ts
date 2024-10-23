@@ -34,6 +34,7 @@ export const useGameStore = defineStore('game', {
 
   actions: {
     initializeGame(numBots: number) {
+      console.log(`Initializing game with ${numBots} bots.`);
       this.deck = this.createDeck();
       this.shuffleDeck();
       this.players = this.createPlayers(numBots);
@@ -53,22 +54,24 @@ export const useGameStore = defineStore('game', {
 
       if (initialCard) {
         this.discardPile.push(initialCard);
+        console.log(`Initial card set: ${JSON.stringify(initialCard)}`);
       }
     },
 
     isCardValid(card: Card): boolean {
       const topCard = this.discardPile[this.discardPile.length - 1];
-      return (
-        !topCard ||
-        card.color === topCard.color ||
-        card.value === topCard.value ||
-        card.color === 'wild'
-      );
+      const isValid = !topCard || 
+        card.color === topCard.color || 
+        card.value === topCard.value || 
+        card.color === 'wild';
+      return isValid;
     },
 
     getValidCards(playerIndex: number): Card[] {
       const player = this.players[playerIndex];
-      return player.hand.filter(this.isCardValid);
+      const validCards = player.hand.filter(this.isCardValid);
+      console.log(`${player.name} has valid cards: ${JSON.stringify(validCards)}`);
+      return validCards;
     },
 
     playCard(playerIndex: number, card: Card) {
@@ -85,6 +88,7 @@ export const useGameStore = defineStore('game', {
       if (cardIndex !== -1) {
         player.hand.splice(cardIndex, 1);
         this.discardPile.push(card);
+        console.log(`${player.name} played: ${JSON.stringify(card)}`);
         this.handleSpecialCard(card);
 
         // Check for a win condition
@@ -117,6 +121,7 @@ export const useGameStore = defineStore('game', {
     },
 
     handleSpecialCard(card: Card) {
+      console.log(`Handling special card: ${JSON.stringify(card)}`); // Log the special card being handled
       switch (card.value) {
         case 'skip':
           this.skipNextPlayer();
@@ -132,11 +137,13 @@ export const useGameStore = defineStore('game', {
           break;
         case 'wild':
           this.changeColor(card);
+          console.log(`Wild card played, color changed to: ${card.color}`); // Log the color change for the wild card
           break;
       }
     },
 
     skipNextPlayer() {
+      console.log(`Skipping the next player.`);
       this.currentPlayer += this.direction;
       if (this.currentPlayer >= this.players.length) {
         this.currentPlayer = 0;
@@ -147,9 +154,11 @@ export const useGameStore = defineStore('game', {
 
     reverseDirection() {
       this.direction *= -1;
+      console.log(`Direction reversed. Current direction: ${this.direction}`);
     },
 
     drawCardsForNextPlayer(count: number) {
+      console.log(`Drawing ${count} cards for the next player.`);
       this.currentPlayer += this.direction;
       if (this.currentPlayer >= this.players.length) {
         this.currentPlayer = 0;
@@ -162,6 +171,7 @@ export const useGameStore = defineStore('game', {
         const card = this.deck.pop();
         if (card) {
           nextPlayer.hand.push(card);
+          console.log(`${nextPlayer.name} drew a card: ${JSON.stringify(card)}`);
         }
       }
     },
@@ -179,12 +189,14 @@ export const useGameStore = defineStore('game', {
         this.deck = [...this.discardPile];
         this.discardPile = [topCard!];
         this.shuffleDeck();
+        console.log(`Deck replenished from discard pile. New deck size: ${this.deck.length}`);
       } else {
         console.log("No cards left in discard pile to replenish the deck.");
       }
     },
 
     changeTurn() {
+      console.log(`Changing turn. Current player index: ${this.currentPlayer}`);
       // Check for valid cards before changing the turn
       const currentPlayer = this.players[this.currentPlayer];
 
@@ -209,6 +221,7 @@ export const useGameStore = defineStore('game', {
       } else if (this.currentPlayer < 0) {
         this.currentPlayer = this.players.length - 1;
       }
+      console.log(`Next player is: ${this.players[this.currentPlayer].name}`);
     },
 
     botPlayCard() {
@@ -217,6 +230,7 @@ export const useGameStore = defineStore('game', {
 
       if (validCards.length > 0) {
         const randomCard = validCards[Math.floor(Math.random() * validCards.length)];
+        console.log(`${bot.name} is playing: ${JSON.stringify(randomCard)}`); // Log the card the bot is playing
         this.playCard(this.currentPlayer, randomCard);
       } else {
         this.drawCardForPlayer(this.currentPlayer); // If no valid cards, draw a card
@@ -249,6 +263,7 @@ export const useGameStore = defineStore('game', {
         deck.push({ color: 'wild', value: '+4' });
       }
 
+      console.log(`Deck created with ${deck.length} cards.`);
       return deck;
     },
 
@@ -257,6 +272,7 @@ export const useGameStore = defineStore('game', {
         const j = Math.floor(Math.random() * (i + 1));
         [this.deck[i], this.deck[j]] = [this.deck[j], this.deck[i]];
       }
+      console.log(`Deck shuffled.`);
     },
 
     createPlayers(numBots: number): Player[] {
@@ -264,6 +280,7 @@ export const useGameStore = defineStore('game', {
       for (let i = 0; i < numBots; i++) {
         players.push({ name: `Bot ${i + 1}`, hand: [], isBot: true });
       }
+      console.log(`Created players: ${JSON.stringify(players)}`);
       return players;
     },
 
@@ -274,6 +291,7 @@ export const useGameStore = defineStore('game', {
           const card = this.deck.pop();
           if (card) {
             player.hand.push(card);
+            console.log(`${player.name} received a card: ${JSON.stringify(card)}`);
           }
         }
       });
