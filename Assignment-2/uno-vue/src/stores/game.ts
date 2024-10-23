@@ -78,44 +78,28 @@ export const useGameStore = defineStore('game', {
 
           this.changeTurn();
         }
-      } else {
-        this.drawCardsUntilPlayable(playerIndex);
       }
     },
 
-    drawCardsUntilPlayable(playerIndex: number) {
-      const player = this.players[playerIndex];
-      let drawnCard: Card | undefined;
-
-      while (true) {
-        if (this.deck.length === 0) {
-          console.log("No more cards to draw.");
-          break; // Exit if the deck is empty
-        }
-
-        drawnCard = this.deck.pop();
-        if (drawnCard) {
-          player.hand.push(drawnCard); // Add to player's hand
-
-          if (this.isCardValid(drawnCard)) {
-            this.playCard(playerIndex, drawnCard); // Play the drawn card immediately
-            return; // Exit the function after playing the card
-          }
-        }
+    replenishDeck() {
+      if (this.discardPile.length > 1) {
+        const topCard = this.discardPile.pop();
+        this.deck = [...this.discardPile]; 
+        this.discardPile = [topCard!]; 
+        this.shuffleDeck();
+      } else {
+        console.log("No cards left in discard pile to replenish the deck.");
       }
-
-      this.changeTurn(); // Skip the turn if no playable card is drawn
     },
 
     changeTurn() {
       this.currentPlayer += this.direction;
       if (this.currentPlayer >= this.players.length) {
-        this.currentPlayer = 0; // Loop back to the start
+        this.currentPlayer = 0;
       } else if (this.currentPlayer < 0) {
-        this.currentPlayer = this.players.length - 1; // Loop back to the end
+        this.currentPlayer = this.players.length - 1; 
       }
 
-      // If the current player is a bot, make the bot play a card
       if (this.players[this.currentPlayer].isBot) {
         this.botPlayCard();
       }
@@ -127,9 +111,8 @@ export const useGameStore = defineStore('game', {
 
       if (validCards.length > 0) {
         const randomCard = validCards[Math.floor(Math.random() * validCards.length)];
-        this.playCard(this.currentPlayer, randomCard); // Play the card
+        this.playCard(this.currentPlayer, randomCard); 
       } else {
-        // If no valid cards, the bot will skip the turn
         this.changeTurn();
       }
     },
