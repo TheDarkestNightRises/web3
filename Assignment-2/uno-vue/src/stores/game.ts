@@ -59,6 +59,7 @@ export const useGameStore = defineStore('game', {
 
     isCardValid(card: Card): boolean {
       const topCard = this.discardPile[this.discardPile.length - 1];
+      if (topCard?.value === '+4') return true;
       return !topCard || 
              card.color === topCard.color || 
              card.value === topCard.value || 
@@ -131,6 +132,22 @@ export const useGameStore = defineStore('game', {
       console.log(`Current player is now: ${this.players[this.currentPlayer].name}`);
     },
 
+    drawCardUntilValid(playerIndex: number) {
+      const player = this.players[playerIndex];
+      let validCards = this.getValidCards(playerIndex);
+
+      while (validCards.length === 0 && this.deck.length > 0) {
+        const newCard = this.deck.pop();
+        if (newCard) {
+          player.hand.push(newCard);
+          console.log(`${player.name} drew a card: ${JSON.stringify(newCard)}`);
+          validCards = this.getValidCards(playerIndex);
+        }
+      }
+
+      return validCards;
+    },
+
     playCard(playerIndex: number, card: Card) {
       if (this.isCardValid(card)) {
         const player = this.players[playerIndex];
@@ -147,31 +164,14 @@ export const useGameStore = defineStore('game', {
     nextPlayer() {
       this.currentPlayer += this.direction;
       this.normalizeCurrentPlayer();
-      if (this.players[this.currentPlayer].isBot) {
-        this.botPlayCard(); // If the next player is a bot, let it play
-      }
-    },
+      const player = this.players[this.currentPlayer];
 
-    botPlayCard() {
-      const bot = this.players[this.currentPlayer];
-      const validCards = this.getValidCards(this.currentPlayer);
+      let validCards = this.drawCardUntilValid(this.currentPlayer);
 
-      if (validCards.length > 0) {
+      if (player.isBot && validCards.length > 0) {
         const randomCard = validCards[Math.floor(Math.random() * validCards.length)];
         this.playCard(this.currentPlayer, randomCard);
-      } else {
-        this.drawCardForPlayer(this.currentPlayer);
       }
-    },
-
-    drawCardForPlayer(playerIndex: number) {
-      const player = this.players[playerIndex];
-      const card = this.deck.pop();
-      if (card) {
-        player.hand.push(card);
-        console.log(`${player.name} drew a card: ${JSON.stringify(card)}`);
-      }
-      this.nextPlayer(); // Proceed to the next player
     },
 
     createDeck(): Card[] {
