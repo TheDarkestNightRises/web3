@@ -72,7 +72,6 @@ export const useGameStore = defineStore('game', {
     },
 
     handleSpecialCard(card: Card) {
-      console.log(`Handling special card: ${JSON.stringify(card)}`);
       switch (card.value) {
         case 'skip':
           this.skipNextPlayer();
@@ -94,7 +93,7 @@ export const useGameStore = defineStore('game', {
 
     skipNextPlayer() {
       console.log(`Skipping turn of the next player.`);
-      this.currentPlayer += this.direction; // Skip the next player
+      this.currentPlayer += this.direction; 
       this.normalizeCurrentPlayer();
     },
 
